@@ -266,7 +266,7 @@ function renderJSON(json, mode) {
       json.data[i].body_html = json.data[i].body_html.replace(/&lt;br \/&gt;/g, '<br />');
     }
   }
-
+  contentsLinker(json);
 
   $timelineData = $('#timelineTemplate').tmpl(json.data);
   $('.timeline-comment-button', $timelineData).timelineComment();
@@ -371,6 +371,24 @@ function tweetByData(data)
     },
     'text'
     );
+}
+function contentsLinker(json)
+{
+  var LinkableSources = ['Diary', 'CommunityTopic', 'CommunityEvent'];
+  var splitMark = function(body) {
+    return body.match(/^(\[.+\]) (.+)$/);
+  };
+  
+  for(var i = 0; i < json.data.length; i++)
+  {
+    if (LinkableSources.indexOf(json.data[i].source)!== -1)
+    {
+      var parts = splitMark(json.data[i].body);
+    }
+    if(!parts || parts.length!=3) continue;
+    var source = json.data[i].source.substring(0,1).toLowerCase() + json.data[i].source.substring(1);
+    json.data[i].body_html = '<a href="/' + source + '/' + json.data[i].uri.split('?id=')[1] + '">' + parts[1] + '</a> ' + parts[2];
+  }
 }
 
 function lengthCheck(obj, target)

@@ -285,6 +285,7 @@ function renderJSON(json, mode) {
   {
     autoLinker(json);
   }
+  contentsLinker(json);
 
   $timelineData = $('#timelineTemplate').tmpl(json.data);
   $('.timeline-comment-button', $timelineData).timelineComment();
@@ -444,6 +445,25 @@ function autoLinker(json)
         json.data[i].body_html = json.data[i].body.replace(/((http:|https:)\/\/[\x21-\x26\x28-\x7e]+)/gi, '<a href="$1"><div class="urlBlock"><img src="http://mozshot.nemui.org/shot?$1"><br />$1</div></a>');
       }
     }
+  }
+}
+
+function contentsLinker(json)
+{
+  var LinkableSources = ['Diary', 'CommunityTopic', 'CommunityEvent'];
+  var splitMark = function(body) {
+    return body.match(/^(\[.+\]) (.+)$/);
+  };
+  
+  for(var i = 0; i < json.data.length; i++)
+  {
+    if (LinkableSources.indexOf(json.data[i].source)!== -1)
+    {
+      var parts = splitMark(json.data[i].body);
+    }
+    if(!parts || parts.length!=3) continue;
+    var source = json.data[i].source.substring(0,1).toLowerCase() + json.data[i].source.substring(1);
+    json.data[i].body_html = '<a href="/' + source + '/' + json.data[i].uri.split('?id=')[1] + '">' + parts[1] + '</a> ' + parts[2];
   }
 }
 
